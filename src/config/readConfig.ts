@@ -1,4 +1,5 @@
 import type { Config } from '../types/config/config.js';
+import readTelegramConfig from './readTelegramConfig.js';
 
 const readConfig = (environment: NodeJS.ProcessEnv): Config => {
   const pollIntervalMs = Number(environment.POLL_INTERVAL_MS ?? '3000');
@@ -20,6 +21,7 @@ const readConfig = (environment: NodeJS.ProcessEnv): Config => {
     pollIntervalMs,
     tailLines,
     containerName: environment.CONTAINER_NAME || undefined,
+    telegram: readTelegramConfig(environment),
   };
 };
 
