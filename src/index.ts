@@ -1,7 +1,6 @@
 import readConfig from './config/readConfig.js';
-import runMonitor from './monitor/runMonitor.js';
+import runApplication from './runApplication.js';
 import reportError from './logging/reportError.js';
-import consoleSink from './logging/consoleSink.js';
 import loadEnvironment from './config/loadEnvironment.js';
 
 const controller = new AbortController();
@@ -13,7 +12,7 @@ process.once('SIGTERM', stop);
 try {
   loadEnvironment();
 
-  await runMonitor(readConfig(process.env), controller.signal, consoleSink);
+  await runApplication(readConfig(process.env), controller);
 } catch (error) {
   if (!controller.signal.aborted) {
     reportError(error);
