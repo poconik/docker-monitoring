@@ -64,8 +64,8 @@ const verifyMonitor = async () => {
     assert.match(stderr, /"stream":"stderr","message":"warning"/);
     assert.match(stderr, /Monitor stopped/);
     assert.match(calls, /--filter name=service/);
-    assert.match(calls, /--tail 100 worker-id/);
-    assert.equal(calls.includes('--tail 100 monitor-id'), false);
+    assert.match(calls, /--tail 5 worker-id/);
+    assert.equal(calls.includes('--tail 5 monitor-id'), false);
     assert.match(calls, /--since 2026-01-01T00:00:00.000000000Z worker-id/);
   } finally {
     child.kill('SIGTERM');

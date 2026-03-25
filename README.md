@@ -53,7 +53,7 @@ The application loads `.env` from the working directory automatically. Existing 
 | Variable | Default | Meaning |
 | --- | --- | --- |
 | `POLL_INTERVAL_MS` | `3000` | Container discovery interval, at least 250 ms. |
-| `LOG_TAIL_LINES` | `100` | Historical lines per container on first attachment; use 0 for only new logs. |
+| `LOG_TAIL_LINES` | `5` | Historical lines per container on first attachment, followed by live logs; use 0 for only new logs. |
 | `CONTAINER_NAME` | unset | Optional Docker name filter, which matches all or part of a name. |
 | `TELEGRAM_BOT_TOKEN` | unset | Bot token from BotFather. |
 | `TELEGRAM_ACCESS_PASSWORD` | unset | Separate shared password for subscriber registration. |

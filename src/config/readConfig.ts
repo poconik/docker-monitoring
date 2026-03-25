@@ -3,7 +3,7 @@ import readTelegramConfig from './readTelegramConfig.js';
 
 const readConfig = (environment: NodeJS.ProcessEnv): Config => {
   const pollIntervalMs = Number(environment.POLL_INTERVAL_MS ?? '3000');
-  const tailLines = Number(environment.LOG_TAIL_LINES ?? '100');
+  const tailLines = Number(environment.LOG_TAIL_LINES ?? '5');
 
   if (
     !Number.isSafeInteger(pollIntervalMs) ||

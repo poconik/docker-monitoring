@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import readConfig from '../dist/config/readConfig.js';
 
 const verifyConfig = () => {
-  assert.deepEqual(readConfig({}), { pollIntervalMs: 3000, tailLines: 100, containerName: undefined, telegram: undefined });
+  assert.deepEqual(readConfig({}), { pollIntervalMs: 3000, tailLines: 5, containerName: undefined, telegram: undefined });
 
   for (const value of ['0', '-1', '250.5', 'invalid', '2147483648']) {
     assert.throws(readConfig.bind(null, { POLL_INTERVAL_MS: value }), /POLL_INTERVAL_MS/);
