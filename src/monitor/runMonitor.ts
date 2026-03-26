@@ -37,7 +37,10 @@ const runMonitor = async (config: Config, signal: AbortSignal, sink: LogSink): P
             controller: new AbortController(),
             task: Promise.resolve(),
             active: true,
-            since: existing?.since,
+            cursors: existing?.cursors ?? {
+              stdout: { timestamp: undefined, entries: new Map() },
+              stderr: { timestamp: undefined, entries: new Map() },
+            },
           };
 
           watchers.set(container.id, watcher);

@@ -29,6 +29,20 @@ const listContainers = async (config: Config, signal: AbortSignal): Promise<Cont
       throw new Error('Docker returned an invalid container listing.');
     }
 
+    let excludedByName = false;
+
+    for (const excludedName of config.excludedContainerNames) {
+      if (name.includes(excludedName)) {
+        excludedByName = true;
+
+        break;
+      }
+    }
+
+    if (excludedByName) {
+      continue;
+    }
+
     containers.push({ id, name });
   }
 

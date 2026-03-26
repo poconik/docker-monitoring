@@ -4,6 +4,15 @@ import readTelegramConfig from './readTelegramConfig.js';
 const readConfig = (environment: NodeJS.ProcessEnv): Config => {
   const pollIntervalMs = Number(environment.POLL_INTERVAL_MS ?? '3000');
   const tailLines = Number(environment.LOG_TAIL_LINES ?? '5');
+  const excludedContainerNames: string[] = [];
+
+  for (const name of (environment.CONTAINER_EXCLUDE_NAMES ?? '').split(',')) {
+    const trimmed = name.trim();
+
+    if (trimmed) {
+      excludedContainerNames.push(trimmed);
+    }
+  }
 
   if (
     !Number.isSafeInteger(pollIntervalMs) ||
@@ -21,6 +30,7 @@ const readConfig = (environment: NodeJS.ProcessEnv): Config => {
     pollIntervalMs,
     tailLines,
     containerName: environment.CONTAINER_NAME || undefined,
+    excludedContainerNames,
     telegram: readTelegramConfig(environment),
   };
 };

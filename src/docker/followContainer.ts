@@ -16,9 +16,20 @@ const followContainer = async (
   sink: LogSink,
 ): Promise<void> => {
   const args = ['logs', '--follow', '--timestamps'];
+  const timestamps: string[] = [];
 
-  if (watcher.since) {
-    args.push('--since', watcher.since);
+  for (const cursor of Object.values(watcher.cursors)) {
+    if (cursor.timestamp) {
+      timestamps.push(cursor.timestamp);
+    }
+  }
+
+  timestamps.sort();
+
+  const since = timestamps[0];
+
+  if (since) {
+    args.push('--since', since);
   } else {
     args.push('--tail', String(config.tailLines));
   }

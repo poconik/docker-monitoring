@@ -4,18 +4,20 @@ set -eu
 printf '%s\n' "$*" >> "$MOCK_DOCKER_CALLS"
 
 if [ "$1" = 'ps' ]; then
-  printf 'worker-id\tworker\napi-id\tapi\nmonitor-id\tmonitor\ttrue\n'
+  printf 'worker-id\tworker\napi-id\tapi\nmonitor-id\tmonitor\ttrue\nmongo-id\tservice-mongo\nrabbitmq-id\tservice-rabbitmq\n'
   exit 0
 fi
 
 case "$*" in
   *--since*)
-    printf '2026-01-01T00:00:01.000000000Z resumed\n'
+    printf '2026-01-01T00:00:02.000000000Z started\n'
+    printf '2026-01-01T00:00:01.000000000Z warning\n' >&2
+    printf '2026-01-01T00:00:03.000000000Z resumed\n'
     exec sleep 30
     ;;
   *worker-id*)
-    printf '2026-01-01T00:00:00.000000000Z started\n'
-    printf '2026-01-01T00:00:00.000000000Z warning\n' >&2
+    printf '2026-01-01T00:00:02.000000000Z started\n'
+    printf '2026-01-01T00:00:01.000000000Z warning\n' >&2
     ;;
   *api-id*)
     printf '2026-01-01T00:00:00.000000000Z ready\n'

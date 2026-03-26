@@ -27,6 +27,7 @@ const verifyMonitor = async () => {
       PATH: `${directory}:${process.env.PATH}`,
       POLL_INTERVAL_MS: '250',
       CONTAINER_NAME: 'service',
+      CONTAINER_EXCLUDE_NAMES: 'mongo,rabbitmq',
       MOCK_DOCKER_CALLS: callsPath,
     },
   });
@@ -61,12 +62,16 @@ const verifyMonitor = async () => {
 
     assert.equal(code, 0);
     assert.deepEqual(names, new Set(['worker', 'api']));
+    assert.equal(entries.length, 3);
+    assert.equal(stderr.match(/"message":"warning"/g)?.length, 1);
     assert.match(stderr, /"stream":"stderr","message":"warning"/);
     assert.match(stderr, /Monitor stopped/);
     assert.match(calls, /--filter name=service/);
     assert.match(calls, /--tail 5 worker-id/);
     assert.equal(calls.includes('--tail 5 monitor-id'), false);
-    assert.match(calls, /--since 2026-01-01T00:00:00.000000000Z worker-id/);
+    assert.equal(calls.includes('--tail 5 mongo-id'), false);
+    assert.equal(calls.includes('--tail 5 rabbitmq-id'), false);
+    assert.match(calls, /--since 2026-01-01T00:00:01.000000000Z worker-id/);
   } finally {
     child.kill('SIGTERM');
 

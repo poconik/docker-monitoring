@@ -55,6 +55,7 @@ The application loads `.env` from the working directory automatically. Existing 
 | `POLL_INTERVAL_MS` | `3000` | Container discovery interval, at least 250 ms. |
 | `LOG_TAIL_LINES` | `5` | Historical lines per container on first attachment, followed by live logs; use 0 for only new logs. |
 | `CONTAINER_NAME` | unset | Optional Docker name filter, which matches all or part of a name. |
+| `CONTAINER_EXCLUDE_NAMES` | unset | Comma-separated, case-sensitive name fragments to exclude after applying the name filter. |
 | `TELEGRAM_BOT_TOKEN` | unset | Bot token from BotFather. |
 | `TELEGRAM_ACCESS_PASSWORD` | unset | Separate shared password for subscriber registration. |
 | `TELEGRAM_USERS_FILE` | `data/users.json` | Persistent private chat IDs and Telegram update offset. |
@@ -62,6 +63,18 @@ The application loads `.env` from the working directory automatically. Existing 
 ```sh
 CONTAINER_NAME=web LOG_TAIL_LINES=50 npm run dev
 ```
+
+`LOG_TAIL_LINES` applies only to the initial attachment to each container. It is not a limit on subsequent live logs. Selecting a shared name prefix also selects matching infrastructure containers, whose routine logs are forwarded too.
+
+To collect application logs for a project while excluding its database and message broker, set:
+
+```dotenv
+CONTAINER_NAME=sample-project
+CONTAINER_EXCLUDE_NAMES=mongo,rabbitmq
+LOG_TAIL_LINES=5
+```
+
+Exclusion removes all logs from matching containers, including errors. Leave it empty to collect every matching container. After changing `.env` on the server, run `docker compose up -d`; if application code changed too, use `docker compose up -d --build`.
 
 ## Telegram setup
 
@@ -108,11 +121,12 @@ Messages are serialized with at least 1.1 seconds between send attempts. Tempora
 
 - Discovers running containers at startup and on each poll.
 - Follows stdout and stderr with Docker timestamps.
-- Reattaches after a log stream closes, resuming from the most recent observed timestamp.
-- Keeps a timestamp cursor for previously seen containers during the current monitor process.
+- Reattaches after a log stream closes, resuming from the earlier of the stdout and stderr cursors.
+- Skips entries replayed by Docker at reconnection, using independent stream cursors and occurrence counts. New repeated messages are preserved, including multiple occurrences at the same timestamp.
+- Keeps stream cursors for previously seen containers during the current monitor process.
 - Separates Docker log collection from the output sink. Add another sink using `src/types/logging/logSink.ts` and pass it to `runMonitor`.
 
-Discovery uses polling, so containers that start and finish entirely between polls may be missed. Reconnection may repeat entries at the timestamp boundary; delivery is best effort and Docker log cursors are not persisted across monitor restarts. TTY containers merge stdout and stderr in Docker. Only logs exposed by `docker logs` are available; application log files inside containers are outside this version's scope. Resource metrics and persistent log storage are not included yet.
+Discovery uses polling, so containers that start and finish entirely between polls may be missed. Delivery is best effort and Docker log cursors are not persisted across monitor restarts; restarting the monitor reads the configured historical tail again. TTY containers merge stdout and stderr in Docker. Only logs exposed by `docker logs` are available; application log files inside containers are outside this version's scope. Resource metrics and persistent log storage are not included yet.
 
 Docker CLI diagnostics from a log-follow process can also appear as stderr entries. Monitor diagnostics include `source: 'monitor'`.
 
